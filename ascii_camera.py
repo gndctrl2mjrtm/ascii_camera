@@ -1,37 +1,35 @@
 #!/bin/env/python
-#-*- encoding: utf-8 -*-
+# -*- encoding: utf-8 -*-
 """
 
 """
-from __future__ import print_function, division
+from __future__ import division, print_function
+
+import os
+
 import cv2
-import sys
-import os
-#"0@123456789BACDEFGHIJKLMNPQRSTUVWXYZOabcdefghijklmnopqrstuvwxyz!#$%&(){}/:;=?[]|*<>+~-_:;^,.'` "
 
-#
 
-from termcolor import colored
-import os
-#char_set = list("$@B%8&WXMZO0QLCJUYX#*oahkbdpqwmzcvunxrjfti!lI/\|()1{}[]?-_+~<>;:,\"^'`. ")
-char_set = "$@B%8&WXMZO0QLCJUYX#*oahkbdpqwmzcvunxrjftIi1l!/\|(){}[]?-_+~<>;:,\"^'."+":"*10 + "."*10 + "`"*15 + " "*50
+char_set = "$@B%8&WXMZO0QLCJUYX#*oahkbdpqwmzcvunxrjftIi1l!/\|(){}[]?-_+~<>;:," \
+           "\"^'." + ":" * 10 + "." * 10 + "`" * 15 + " " * 50
 char_set = list(char_set)
-n_chars = len(char_set)-1
+n_chars = len(char_set) - 1
+
 
 def cvrt(n):
-    return char_set[int((n/255)*n_chars)]
+    return char_set[int((n / 255) * n_chars)]
 
 
 def convert_frame(frame):
     output = ''
     for row in frame:
-        output += ''.join(list(map(cvrt, row)))+'\n'
+        output += ''.join(list(map(cvrt, row))) + '\n'
     return output
 
 
 def _main():
     rows, columns = os.popen('stty size', 'r').read().split()
-    rows, columns = int(int(rows)/2), int(int(columns)/2)
+    rows, columns = int(int(rows) / 2), int(int(columns) / 2)
 
     print(rows, columns)
 
@@ -41,27 +39,26 @@ def _main():
 
     test_image = cv2.imread(test_path)
     test_image = cv2.cvtColor(test_image, cv2.COLOR_BGR2GRAY)
-    h,w = test_image.shape[:2]
+    h, w = test_image.shape[:2]
 
-    print(h,w)
+    print(h, w)
 
     # w*c h*c where c := scaling factor from column width
     # (height/column)*height
 
-    new_w, new_h = columns, int((w/h)*columns)
+    new_w, new_h = columns, int((w / h) * columns)
     print(new_w, new_h)
 
     frame = cv2.resize(test_image, (new_h, new_w))
 
     print(convert_frame(frame))
 
+
 def main():
-
-
     video_data = cv2.VideoCapture(0)
 
     while True:
-        _,frame = video_data.read()
+        _, frame = video_data.read()
 
         frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         h, w = frame.shape[:2]
@@ -76,14 +73,10 @@ def main():
         else:
             new_w, new_h = columns, int((w / h) * columns)
 
-        #new_w, new_h = int(new_w/3), int(new_h/3)
-
         frame = cv2.resize(frame, (new_w, new_h))
 
-        #os.system('clear')
-        #print(colored(convert_frame(frame), 'green'))
         print(convert_frame(frame))
-        print('\n'*(rows-new_w))
+        print('\n' * (rows - new_w))
 
 
 if __name__ == "__main__":
